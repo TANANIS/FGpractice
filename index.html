@@ -1,883 +1,469 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>
-      昇龍 / 波動 / 旋風腳 輸入練習器｜Hitbox SOCD 版（含 5 中立計算）
-    </title>
-    <style>
-      :root {
-        --bg: #0f1221;
-        --panel: #161a2f;
-        --ink: #e9ecff;
-        --accent: #7aa2ff;
-        --ok: #52e2b7;
-        --bad: #ff6b6b;
-        --muted: #9aa3c7;
-      }
-      html,
-      body {
-        height: 100%;
-      }
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-          Arial, Apple Color Emoji, Segoe UI Emoji;
-        letter-spacing: 0.2px;
-        color: var(--ink);
-        background: radial-gradient(
-          1200px 800px at 70% -10%,
-          #1b2146 0%,
-          #0f1221 60%
-        );
-      }
-      .wrap {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 24px;
-      }
-      h1 {
-        margin: 0 0 12px;
-        font-size: 28px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: 360px 1fr;
-        gap: 16px;
-      }
-      .card {
-        background: var(--panel);
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-        padding: 16px;
-      }
-      .sub {
-        color: var(--muted);
-        font-size: 13px;
-      }
-      .row {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .pill {
-        background: #0c0f20;
-        border: 1px solid #242a4d;
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 13px;
-        color: #cbd3ff9e;
-      }
-      .btn {
-        cursor: pointer;
-        background: linear-gradient(180deg, #24306a, #1a234f);
-        border: 1px solid #3b4aa3;
-        color: #e5e9ff;
-        padding: 10px 14px;
-        border-radius: 10px;
-        font-weight: 600;
-      }
-      .btn:active {
-        transform: translateY(1px);
-      }
-      .toggle {
-        display: inline-flex;
-        gap: 6px;
-        align-items: center;
-      }
-      .toggle input,
-      select {
-        accent-color: var(--accent);
-      }
-      .stat {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        margin-top: 12px;
-      }
-      .stat div {
-        background: #0c0f20;
-        border: 1px solid #242a4d;
-        border-radius: 12px;
-        padding: 10px 12px;
-      }
-      .stat b {
-        display: block;
-        font-size: 22px;
-        margin-top: 6px;
-      }
-      .stick {
-        display: grid;
-        grid-template-columns: repeat(3, 64px);
-        grid-auto-rows: 64px;
-        gap: 10px;
-        justify-content: center;
-        margin: 6px auto 12px;
-      }
-      .cell {
-        border-radius: 12px;
-        border: 1px solid #2b325f;
-        background: #0c0f20;
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        color: #6572a8;
-      }
-      .cell.active {
-        border-color: #86a3ff;
-        box-shadow: 0 0 0 2px rgba(122, 162, 255, 0.25) inset,
-          0 0 24px rgba(122, 162, 255, 0.25);
-      }
-      .cell.active span {
-        color: #cfe1ff;
-      }
-      .kbd {
-        background: #0c0f20;
-        border: 1px solid #2b325f;
-        border-radius: 8px;
-        padding: 3px 6px;
-        font-weight: 700;
-      }
-      .log {
-        height: 210px;
-        overflow: auto;
-        background: #0c0f20;
-        border: 1px solid #242a4d;
-        border-radius: 12px;
-        padding: 10px;
-        font-family: ui-monospace, Consolas, monospace;
-        font-size: 13px;
-        line-height: 1.5;
-      }
-      .log em {
-        color: #7aa2ff;
-        font-style: normal;
-      }
-      .hit {
-        color: var(--ok);
-        font-weight: 800;
-      }
-      .miss {
-        color: var(--bad);
-        font-weight: 800;
-      }
-      .bar {
-        height: 8px;
-        background: #0c0f20;
-        border: 1px solid #242a4d;
-        border-radius: 999px;
-        position: relative;
-        overflow: hidden;
-      }
-      .bar > i {
-        position: absolute;
-        inset: 0;
-        width: 0;
-        background: linear-gradient(
-          90deg,
-          rgba(122, 162, 255, 0.85),
-          rgba(82, 226, 183, 0.85)
-        );
-        transition: width 0.12s;
-      }
-      .help {
-        font-size: 13px;
-        line-height: 1.7;
-        color: #cbd3ff9e;
-      }
-      .footer {
-        opacity: 0.75;
-        font-size: 12px;
-        margin-top: 12px;
-      }
-      .good {
-        color: var(--ok);
-      }
-      .bad {
-        color: var(--bad);
-      }
-      select,
-      .slim {
-        background: #0c0f20;
-        color: #e5e9ff;
-        border: 1px solid #3b4aa3;
-        border-radius: 10px;
-        padding: 8px 10px;
-      }
-      .col {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      @media (max-width: 900px) {
-        .grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <h1>
-        SF 輸入練習器
-        <span class="sub"
-          >（Hitbox SOCD 版：昇龍 623/替代、波動 236、旋風腳 214｜支援中立
-          5）</span
-        >
-      </h1>
-      <div class="grid">
-        <section class="card">
-          <div class="row" style="justify-content: space-between">
-            <div class="row">
-              <label class="toggle"
-                ><input id="face" type="checkbox" /> 面向左（←）</label
-              >
-              <label class="toggle"
-                >招式
-                <select id="move" class="slim">
-                  <option value="dp">昇龍拳 623+P</option>
-                  <option value="fb">波動拳 236+P</option>
-                  <option value="tatsu">旋風腳 214+K</option>
-                </select>
-              </label>
-              <label class="toggle"
-                ><input id="hitboxMode" type="checkbox" checked /> Hitbox
-                快捷（DP 允許 6-2-2 / 2-6-6 / 6-2-8 / 6-2-5-2 / 2-6-5-6 /
-                6-2-5-8）</label
-              >
-              <label class="toggle"
-                ><input id="socdNeutral" type="checkbox" checked />
-                SOCD：左右/上下回中</label
-              >
-              <span class="pill"
-                >鍵盤：方向鍵/WASD，行為鍵：<span class="kbd">J/K/L</span></span
-              >
-              <label class="toggle" style="margin-left: 6px"
-                ><input id="usePad" type="checkbox" />
-                使用搖桿（Gamepad）</label
-              >
-              <span class="pill" id="padStatus">未連線</span>
-            </div>
-            <button class="btn" id="reset">重置統計</button>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SF 輸入練習器 v2｜Hitbox SOCD（含 LOG、上一筆常駐、DP 補 6/5）</title>
+  <style>
+    :root{--bg:#0f1221;--panel:#161a2f;--ink:#e9ecff;--accent:#7aa2ff;--ok:#52e2b7;--bad:#ff6b6b;--muted:#9aa3c7}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;letter-spacing:.2px;color:var(--ink);background:radial-gradient(1200px 800px at 70% -10%,#1b2146 0%,#0f1221 60%)}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    h1{margin:0 0 12px;font-size:28px}
+    .grid{display:grid;grid-template-columns:360px 1fr;gap:16px}
+    .card{background:var(--panel);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);padding:16px}
+    .sub{color:var(--muted);font-size:13px}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .pill{background:#0c0f20;border:1px solid #242a4d;border-radius:999px;padding:6px 10px;font-size:13px;color:#cbd3ff9e}
+    .btn{cursor:pointer;background:linear-gradient(180deg,#24306a,#1a234f);border:1px solid #3b4aa3;color:#e5e9ff;padding:10px 14px;border-radius:10px;font-weight:600}
+    .btn:active{transform:translateY(1px)}
+    .toggle{display:inline-flex;gap:6px;align-items:center}
+    .toggle input, select{accent-color:var(--accent)}
+    .stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+    .stat div{background:#0c0f20;border:1px solid #242a4d;border-radius:12px;padding:10px 12px}
+    .stat b{display:block;font-size:22px;margin-top:6px}
+    .stick{display:grid;grid-template-columns:repeat(3,64px);grid-auto-rows:64px;gap:10px;justify-content:center;margin:6px auto 12px}
+    .cell{border-radius:12px;border:1px solid #2b325f;background:#0c0f20;display:grid;place-items:center;font-weight:700;color:#6572a8}
+    .cell.active{border-color:#86a3ff;box-shadow:0 0 0 2px rgba(122,162,255,.25) inset,0 0 24px rgba(122,162,255,.25)}
+    .cell.active span{color:#cfe1ff}
+    .kbd{background:#0c0f20;border:1px solid #2b325f;border-radius:8px;padding:3px 6px;font-weight:700}
+    .log{height:210px;overflow:auto;background:#0c0f20;border:1px solid #242a4d;border-radius:12px;padding:10px;font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:1.5}
+    .log em{color:#7aa2ff;font-style:normal}
+    .hit{color:var(--ok);font-weight:800}
+    .miss{color:var(--bad);font-weight:800}
+    .bar{height:8px;background:#0c0f20;border:1px solid #242a4d;border-radius:999px;position:relative;overflow:hidden}
+    .bar>i{position:absolute;inset:0;width:0;background:linear-gradient(90deg,rgba(122,162,255,.85),rgba(82,226,183,.85));transition:width .12s}
+    .help{font-size:13px;line-height:1.7;color:#cbd3ff9e}
+    .footer{opacity:.75;font-size:12px;margin-top:12px}
+    .good{color:var(--ok)} .bad{color:var(--bad)}
+    select, .slim{background:#0c0f20;color:#e5e9ff;border:1px solid #3b4aa3;border-radius:10px;padding:8px 10px}
+    .col{display:flex;flex-direction:column;gap:6px}
+    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>SF 輸入練習器 v2 <span class="sub">（Hitbox SOCD：昇龍 623/替代、波動 236、旋風腳 214｜LOG 模式｜上一筆常駐｜DP 補 6/5）</span></h1>
+    <div class="grid">
+      <section class="card">
+        <div class="row" style="justify-content:space-between">
+          <div class="row">
+            <label class="toggle"><input id="face" type="checkbox"/> 面向左（←）</label>
+            <label class="toggle">招式
+              <select id="move" class="slim">
+                <option value="dp">昇龍拳 623+P</option>
+                <option value="fb">波動拳 236+P</option>
+                <option value="tatsu">旋風腳 214+K</option>
+              </select>
+            </label>
+            <label class="toggle"><input id="hitboxMode" type="checkbox" checked /> Hitbox 快捷（DP 允許 6-2-2 / 2-6-6 / 6-2-8 / 6-2-5-2 / 2-6-5-6 / 6-2-5-8）</label>
+            <label class="toggle"><input id="socdNeutral" type="checkbox" checked /> SOCD：左右/上下回中</label>
+            <span class="pill">鍵盤：方向鍵/WASD，行為鍵：<span class="kbd">J/K/L</span></span>
+            <label class="toggle" style="margin-left:6px"><input id="usePad" type="checkbox"/> 使用搖桿（Gamepad）</label>
+            <span class="pill" id="padStatus">未連線</span>
           </div>
+          <button class="btn" id="reset">重置統計</button>
+        </div>
 
-          <div class="stick" id="stick">
-            <div class="cell" data-dir="7"><span>↖</span></div>
-            <div class="cell" data-dir="8"><span>↑</span></div>
-            <div class="cell" data-dir="9"><span>↗</span></div>
-            <div class="cell" data-dir="4"><span>←</span></div>
-            <div class="cell" data-dir="5"><span>•</span></div>
-            <div class="cell" data-dir="6"><span>→</span></div>
-            <div class="cell" data-dir="1"><span>↙</span></div>
-            <div class="cell" data-dir="2"><span>↓</span></div>
-            <div class="cell" data-dir="3"><span>↘</span></div>
-          </div>
+        <div class="stick" id="stick">
+          <div class="cell" data-dir="7"><span>↖</span></div>
+          <div class="cell" data-dir="8"><span>↑</span></div>
+          <div class="cell" data-dir="9"><span>↗</span></div>
+          <div class="cell" data-dir="4"><span>←</span></div>
+          <div class="cell" data-dir="5"><span>•</span></div>
+          <div class="cell" data-dir="6"><span>→</span></div>
+          <div class="cell" data-dir="1"><span>↙</span></div>
+          <div class="cell" data-dir="2"><span>↓</span></div>
+          <div class="cell" data-dir="3"><span>↘</span></div>
+        </div>
 
-          <div class="row" style="gap: 18px; align-items: flex-start">
-            <div class="col" style="flex: 1">
-              <label
-                >步驟間隔（ms）
-                <div class="bar"><i id="stepBar"></i></div
-              ></label>
-              <input
-                type="range"
-                id="stepMs"
-                min="60"
-                max="300"
-                value="160"
-                style="width: 100%"
-              />
-            </div>
-            <div class="col" style="flex: 1">
-              <label
-                >總時限（ms）
-                <div class="bar"><i id="totalBar"></i></div
-              ></label>
-              <input
-                type="range"
-                id="totalMs"
-                min="200"
-                max="900"
-                value="430"
-                style="width: 100%"
-              />
-            </div>
-            <div class="col" style="flex: 1">
-              <label
-                >按鍵寬限（ms）
-                <div class="bar"><i id="punchBar"></i></div
-              ></label>
-              <input
-                type="range"
-                id="punchMs"
-                min="60"
-                max="260"
-                value="120"
-                style="width: 100%"
-              />
-            </div>
-            <div class="col" style="flex: 1">
-              <label
-                >搖桿 Deadzone
-                <div class="bar"><i id="deadBar"></i></div
-              ></label>
-              <input
-                type="range"
-                id="deadzone"
-                min="0"
-                max="0.6"
-                step="0.02"
-                value="0.25"
-                style="width: 100%"
-              />
-            </div>
+        <div class="row" style="gap:18px;align-items:flex-start">
+          <div class="col" style="flex:1">
+            <label>步驟間隔（ms）<div class="bar"><i id="stepBar"></i></div></label>
+            <input type="range" id="stepMs" min="60" max="300" value="160" style="width:100%">
           </div>
+          <div class="col" style="flex:1">
+            <label>總時限（ms）<div class="bar"><i id="totalBar"></i></div></label>
+            <input type="range" id="totalMs" min="200" max="900" value="430" style="width:100%">
+          </div>
+          <div class="col" style="flex:1">
+            <label>按鍵寬限（ms）<div class="bar"><i id="punchBar"></i></div></label>
+            <input type="range" id="punchMs" min="60" max="260" value="120" style="width:100%">
+          </div>
+          <div class="col" style="flex:1">
+            <label>搖桿 Deadzone<div class="bar"><i id="deadBar"></i></div></label>
+            <input type="range" id="deadzone" min="0" max="0.6" step="0.02" value="0.25" style="width:100%">
+          </div>
+        </div>
 
-          <div class="stat">
-            <div>成功<b id="ok">0</b></div>
-            <div>失誤<b id="ng">0</b></div>
-            <div>成功率<b id="rate">0%</b></div>
-          </div>
-        </section>
+        <div class="stat">
+          <div>成功<b id="ok">0</b></div>
+          <div>失誤<b id="ng">0</b></div>
+          <div>成功率<b id="rate">0%</b></div>
+        </div>
+      </section>
 
-        <section class="card">
-          <div
-            class="row"
-            style="justify-content: space-between; align-items: baseline"
-          >
-            <h3 style="margin: 0">上一筆判定</h3>
-            <div class="sub">直到下一次輸入才會更新</div>
-          </div>
-          <div
-            id="lastBox"
-            class="log"
-            style="
-              height: auto;
-              min-height: 56px;
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-            "
-          ></div>
-          <div
-            class="row"
-            style="justify-content: space-between; align-items: baseline"
-          >
-            <h3 style="margin: 0">輸入記錄</h3>
-            <div class="sub">
-              顯示最近 2 秒內的方向變化；成功/失誤會附註在末端（支援 5
-              中立步驟）
-            </div>
-          </div>
-          <div id="log" class="log" aria-live="polite"></div>
-          <div class="help">
-            <p>
-              <b>Hitbox 常用按法</b>：昇龍可練
-              <span class="good">6 → 2 → 3 + P</span>；也常見
-              <span class="good">6 → 2 → 2 + P</span>、<span class="good"
-                >2 → 6 → 6 + P</span
-              >、或 <span class="good">6 → 2 → 8 + P</span>。亦支援以
-              <span class="good">5（中立）</span> 夾步的變體：<span class="good"
-                >6 → 2 → 5 → 2</span
-              >、<span class="good">2 → 6 → 5 → 6</span>、<span class="good"
-                >6 → 2 → 5 → 8</span
-              >。旋風腳基本為 <span class="good">2 → 1 → 4 + K</span>；也支援
-              <span class="good">2 → 5 → 4 + K</span>、<span class="good"
-                >2 → 4 → 4 + K</span
-              >、<span class="good">2 → 2 → 4 + K</span>（鏡像自動處理）。
-            </p>
-            <p>
-              <b>SOCD</b>：預設左右/上下相抵回中；可關閉以測試不同清潔器邏輯。
-            </p>
-            <p>
-              <b>面向</b
-              >：未勾選＝面向右；勾選＝面向左。序列自動鏡像（6↔4，3↔1；5
-              不變）。
-            </p>
-            <p>
-              <b>判定</b>：序列需依序完成；相鄰步驟時間 ≤「步驟間隔」，總時限
-              ≤「總時限」，最後一步後「按鍵寬限」內按下行為鍵即判 OK。
-            </p>
-            <p class="footer">
-              Made for muscle memory. 可離線使用。支援 Gamepad
-              API（Chrome/Edge/Firefox/Opera）。
-            </p>
-          </div>
-        </section>
-      </div>
+      <section class="card">
+        <div class="row" style="justify-content:space-between;align-items:baseline">
+          <h3 style="margin:0">上一筆判定</h3>
+          <div class="sub">直到下一次輸入才會更新</div>
+        </div>
+        <div id="lastBox" class="log" style="height:auto;min-height:56px;display:flex;align-items:center;justify-content:space-between;"></div>
+
+        <div class="row" style="justify-content:space-between;align-items:baseline;margin-top:10px">
+          <h3 style="margin:0">判定紀錄</h3>
+          <div class="sub">每次按下行為鍵（J/K/L 或手把）都會留下結果</div>
+        </div>
+        <div id="judge" class="log" aria-live="polite"></div>
+
+        <div class="row" style="justify-content:space-between;align-items:baseline;margin-top:10px">
+          <h3 style="margin:0">輸入記錄</h3>
+          <div class="sub">顯示最近 2.5 秒內的方向變化（僅方向）</div>
+        </div>
+        <div id="log" class="log"></div>
+
+        <div class="help">
+          <p><b>Hitbox 常用按法</b>：昇龍可練 <span class="good">6 → 2 → 3 + P</span>；也常見 <span class="good">6 → 2 → 2 + P</span>、<span class="good">2 → 6 → 6 + P</span>、或 <span class="good">6 → 2 → 8 + P</span>。亦支援以 <span class="good">5（中立）</span> 夾步的變體：<span class="good">6 → 2 → 5 → 2</span>、<span class="good">2 → 6 → 5 → 6</span>、<span class="good">6 → 2 → 5 → 8</span>。旋風腳基本為 <span class="good">2 → 1 → 4 + K</span>；也支援 <span class="good">2 → 5 → 4 + K</span>、<span class="good">2 → 4 → 4 + K</span>、<span class="good">2 → 2 → 4 + K</span>（鏡像自動處理）。</p>
+          <p><b>SOCD</b>：預設左右/上下相抵回中；可關閉以測試不同清潔器邏輯。</p>
+          <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。序列自動鏡像（6↔4，3↔1；5 不變）。</p>
+          <p><b>判定</b>：序列需依序完成；相鄰步驟時間 ≤「步驟間隔」，總時限 ≤「總時限」。<b>昇龍完成後允許在步驟間隔內補 6（或 4）或 5 再按拳</b>，按鍵需在錨點後「按鍵寬限」內。</p>
+          <p class="footer">Made for muscle memory. 可離線使用。支援 Gamepad API（Chrome/Edge/Firefox/Opera）。</p>
+        </div>
+      </section>
     </div>
+  </div>
 
-    <script>
-      (() => {
-        const $ = (s) => document.querySelector(s);
-        const $$ = (s) => Array.from(document.querySelectorAll(s));
-        const face = $("#face");
-        const moveSel = $("#move");
-        const resetBtn = $("#reset");
-        const logEl = $("#log");
-        const lastBox = $("#lastBox");
-        const okEl = $("#ok");
-        const ngEl = $("#ng");
-        const rateEl = $("#rate");
-        const stepMsEl = $("#stepMs");
-        const totalMsEl = $("#totalMs");
-        const punchMsEl = $("#punchMs");
-        const stepBar = $("#stepBar");
-        const totalBar = $("#totalBar");
-        const punchBar = $("#punchBar");
-        const usePad = $("#usePad");
-        const padStatus = $("#padStatus");
-        const deadzoneEl = $("#deadzone");
-        const deadBar = $("#deadBar");
-        const hitboxMode = $("#hitboxMode");
-        const socdNeutral = $("#socdNeutral");
+<script>
+(()=>{
+  const $ = (s)=>document.querySelector(s);
+  const $$ = (s)=>Array.from(document.querySelectorAll(s));
+  const face = $('#face');
+  const moveSel = $('#move');
+  const resetBtn = $('#reset');
+  const logEl = $('#log');
+  const judgeEl = $('#judge');
+  const lastBox = $('#lastBox');
+  const okEl = $('#ok');
+  const ngEl = $('#ng');
+  const rateEl = $('#rate');
+  const stepMsEl = $('#stepMs');
+  const totalMsEl = $('#totalMs');
+  const punchMsEl = $('#punchMs');
+  const stepBar = $('#stepBar');
+  const totalBar = $('#totalBar');
+  const punchBar = $('#punchBar');
+  const usePad = $('#usePad');
+  const padStatus = $('#padStatus');
+  const deadzoneEl = $('#deadzone');
+  const deadBar = $('#deadBar');
+  const hitboxMode = $('#hitboxMode');
+  const socdNeutral = $('#socdNeutral');
 
-        function syncBars() {
-          stepBar.style.width =
-            ((stepMsEl.value - stepMsEl.min) / (stepMsEl.max - stepMsEl.min)) *
-              100 +
-            "%";
-          totalBar.style.width =
-            ((totalMsEl.value - totalMsEl.min) /
-              (totalMsEl.max - totalMsEl.min)) *
-              100 +
-            "%";
-          punchBar.style.width =
-            ((punchMsEl.value - punchMsEl.min) /
-              (punchMsEl.max - punchMsEl.min)) *
-              100 +
-            "%";
-          deadBar.style.width =
-            ((deadzoneEl.value - deadzoneEl.min) /
-              (deadzoneEl.max - deadzoneEl.min)) *
-              100 +
-            "%";
+  function syncBars(){
+    stepBar.style.width = ( (stepMsEl.value-stepMsEl.min)/(stepMsEl.max-stepMsEl.min) * 100 ) + '%';
+    totalBar.style.width = ( (totalMsEl.value-totalMsEl.min)/(totalMsEl.max-totalMsEl.min) * 100 ) + '%';
+    punchBar.style.width = ( (punchMsEl.value-punchMsEl.min)/(punchMsEl.max-punchMsEl.min) * 100 ) + '%';
+    deadBar.style.width = ( (deadzoneEl.value-deadzoneEl.min)/(deadzoneEl.max-deadzoneEl.min) * 100 ) + '%';
+  }
+  [stepMsEl,totalMsEl,punchMsEl,deadzoneEl].forEach(el=>el.addEventListener('input',syncBars));
+  syncBars();
+
+  // 狀態
+  let buffer = []; // {dir:number, t:number}
+  let keys = new Set();
+  let ok=0, ng=0;
+
+  // Gamepad 狀態
+  let lastPadDir = 5;
+  let prevPadButtons = new Set();
+
+  // 招式表（面向右）。面向左會鏡像（6↔4, 3↔1；5 不動）
+  const MOVES = {
+    dp:   { name:'昇龍拳',  seqR:[[6,2,3]], action:'P',
+            altR:[[6,2,2],[2,6,6],[6,2,8],[6,2,5,2],[2,6,5,6],[6,2,5,8]] },
+    fb:   { name:'波動拳',  seqR:[[2,3,6]], action:'P' },                 // 236P
+    tatsu:{ name:'旋風腳',  seqR:[[2,1,4]], action:'K', altR:[[2,5,4],[2,4,4],[2,2,4]] } // 214K
+  };
+
+  // 鏡像方向
+  function mirrorDir(dir){ const map={1:3,3:1,4:6,6:4,7:9,9:7}; return map[dir] ?? dir; }
+  function mirrorSeq(seq){ return seq.map(mirrorDir); }
+
+  function getActiveSeqs(){
+    const mv = MOVES[moveSel.value];
+    const base = mv.seqR.map(s=>s.slice());
+    const alts = (hitboxMode.checked && mv.altR) ? mv.altR.map(s=>s.slice()) : [];
+    let seqs = base.concat(alts);
+    if (face.checked){ seqs = seqs.map(mirrorSeq); }
+    return {seqs, action: mv.action, name: mv.name};
+  }
+
+  // SOCD（可切換）
+  function applySOCD(u,d,l,r){
+    if (!socdNeutral.checked) return {U:u,D:d,L:l,R:r};
+    return { U: u && !d, D: d && !u, L: l && !r, R: r && !l };
+  }
+
+  // 方向（鍵盤）
+  function currentDir(){
+    let l = keys.has('ArrowLeft')||keys.has('a');
+    let r = keys.has('ArrowRight')||keys.has('d');
+    let u = keys.has('ArrowUp')||keys.has('w');
+    let d = keys.has('ArrowDown')||keys.has('s');
+    ({U:u,D:d,L:l,R:r} = applySOCD(u,d,l,r));
+    let dir = 5;
+    if (u && l) dir = 7; else if (u && r) dir = 9; else if (d && l) dir = 1; else if (d && r) dir = 3;
+    else if (l) dir = 4; else if (r) dir = 6; else if (u) dir = 8; else if (d) dir = 2; else dir = 5;
+    return dir;
+  }
+
+  function pushDir(dir){
+    const now = performance.now();
+    if (!buffer.length || buffer[buffer.length-1].dir !== dir){
+      buffer.push({dir, t:now});
+      const cutoff = now - 2500; // 2.5s 視窗
+      buffer = buffer.filter(x=>x.t>=cutoff);
+      renderStick(dir);
+      renderLog();
+    }
+  }
+
+  function renderStick(dir){
+    $$('.cell').forEach(c=> c.classList.toggle('active', Number(c.dataset.dir)===dir));
+  }
+
+  function renderLog(){
+    const rows = buffer.map(b=>`${Math.round(b.t%100000).toString().padStart(5,'0')}  dir=<em>${b.dir}</em>`);
+    logEl.innerHTML = rows.join('\n');
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // ===== 判定邏輯 =====
+  function checkSequence(pressTime){
+    const stepMs = Number(stepMsEl.value);
+    const totalMs = Number(totalMsEl.value);
+    const pressMs = Number(punchMsEl.value);
+
+    const {seqs, action, name} = getActiveSeqs();
+    const winStart = pressTime - totalMs;
+    const win = buffer.filter(x=>x.t>=winStart && x.t<=pressTime);
+
+    // 嚴格相等：只檢查步驟順序與間隔；出拳寬限另行處理（以便 DP 錨點後移）
+    function matchOneExact(seq){
+      let i=0, lastT=null;
+      for (const item of win){
+        if (item.dir===seq[i]){
+          if (lastT!==null && (item.t - lastT) > stepMs) return {ok:false};
+          lastT = item.t; i++; if (i===seq.length) break;
         }
-        [stepMsEl, totalMsEl, punchMsEl, deadzoneEl].forEach((el) =>
-          el.addEventListener("input", syncBars)
-        );
-        syncBars();
+      }
+      if (i!==seq.length) return {ok:false};
+      return {ok:true, lastT};
+    }
 
-        // 狀態
-        let buffer = []; // {dir:number, t:number}
-        let keys = new Set();
-        let ok = 0,
-          ng = 0;
+    // DP 實戰啟發式（6-2-2 與 2-6-6），僅回傳最後關鍵步驟時間
+    function dpHeuristic(){
+      if (moveSel.value !== 'dp') return {ok:false};
+      const dirs = win.map(x=>x.dir);
+      const times = win.map(x=>x.t);
+      const isR = d=> d===6 || d===3 || d===9; // 右成份（含 ↘/↗）
+      const isD = d=> d===2 || d===1 || d===3; // 下成份（含 ↙/↘）
+      const isNonR = d=> !isR(d);
+      const isNonD = d=> !isD(d);
 
-        // Gamepad 狀態
-        let lastPadDir = 5;
-        let prevPadButtons = new Set();
-
-        // 招式表（面向右）。面向左會鏡像（6↔4, 3↔1, 其餘保持；5 不動）
-        const MOVES = {
-          dp: {
-            name: "昇龍拳",
-            seqR: [[6, 2, 3]],
-            action: "P",
-            altR: [
-              [6, 2, 2],
-              [2, 6, 6],
-              [6, 2, 8],
-              [6, 2, 5, 2],
-              [2, 6, 5, 6],
-              [6, 2, 5, 8],
-            ],
-          },
-          fb: { name: "波動拳", seqR: [[2, 3, 6]], action: "P" }, // 236P
-          // 旋風腳：經常在 2 與 4 之間經過 5（中立），或用雙擊邊向代替角落
-          // 基本 214K；允許 2-5-4、2-4-4、2-2-4
-          tatsu: {
-            name: "旋風腳",
-            seqR: [[2, 1, 4]],
-            action: "K",
-            altR: [
-              [2, 5, 4],
-              [2, 4, 4],
-              [2, 2, 4],
-            ],
-          },
-        };
-
-        // 鏡像方向與序列
-        function mirrorDir(dir) {
-          const map = { 1: 3, 3: 1, 4: 6, 6: 4, 7: 9, 9: 7 };
-          return map[dir] ?? dir;
+      // A: 6-2-2 型（兩個下成份，中間必有非下；且第一個下之前/同時有右成份）
+      for (let i=0;i<dirs.length;i++){
+        if (!isD(dirs[i])) continue;
+        for (let j=i+1;j<dirs.length;j++){
+          if (!isD(dirs[j])) continue;
+          let separated=false; for (let k=i+1;k<j;k++){ if (isNonD(dirs[k])) {separated=true; break;} }
+          if (!separated) continue;
+          let a=-1; for (let m=0;m<=i;m++){ if (isR(dirs[m])) a=m; }
+          if (a===-1) continue;
+          if (times[i]-times[a] > stepMs) continue;
+          if (times[j]-times[i] > stepMs) continue;
+          return {ok:true, lastT: times[j], pattern:'622'};
         }
-        function mirrorSeq(seq) {
-          return seq.map(mirrorDir);
+      }
+
+      // B: 2-6-6 型（兩個右成份，中間必有非右；且第二次右之前曾出現下成份）
+      for (let i=0;i<dirs.length;i++){
+        if (!isR(dirs[i])) continue;
+        for (let j=i+1;j<dirs.length;j++){
+          if (!isR(dirs[j])) continue;
+          let separated=false; for (let k=i+1;k<j;k++){ if (isNonR(dirs[k])) {separated=true; break;} }
+          if (!separated) continue;
+          let hasDownBeforeSecond=false; for (let m=0;m<=j;m++){ if (isD(dirs[m])) {hasDownBeforeSecond=true; break;} }
+          if (!hasDownBeforeSecond) continue;
+          if (times[j]-times[i] > stepMs) continue;
+          return {ok:true, lastT: times[j], pattern:'266'};
         }
+      }
+      return {ok:false};
+    }
 
-        function getActiveSeqs() {
-          const mv = MOVES[moveSel.value];
-          const base = mv.seqR.map((s) => s.slice());
-          const alts =
-            hitboxMode.checked && mv.altR ? mv.altR.map((s) => s.slice()) : [];
-          let seqs = base.concat(alts);
-          if (face.checked) {
-            seqs = seqs.map(mirrorSeq);
-          }
-          return { seqs, action: mv.action, name: mv.name };
+    // 昇龍完成後允許補「前(6/4) 或 5」：在步驟間隔內把錨點延後
+    function anchorAfterFinish(lastT){
+      if (moveSel.value !== 'dp') return lastT;
+      const forward = face.checked ? 4 : 6;
+      for (const item of win){
+        if (item.t>lastT && (item.t-lastT)<=stepMs && (item.dir===forward || item.dir===5)){
+          return item.t;
         }
+      }
+      return lastT;
+    }
 
-        // SOCD：左右/上下同時回中（可切換）
-        function applySOCD(u, d, l, r) {
-          if (!socdNeutral.checked) return { U: u, D: d, L: l, R: r };
-          return { U: u && !d, D: d && !u, L: l && !r, R: r && !l };
+    // (1) 嚴格序列（含 5 的變體）
+    for (const seq of seqs){
+      const r = matchOneExact(seq);
+      if (r.ok){
+        const anchor = anchorAfterFinish(r.lastT);
+        if (pressTime - anchor <= pressMs){
+          return {ok:true, action, name, via:'exact', seq};
         }
+      }
+    }
 
-        // 方向（鍵盤）
-        function currentDir() {
-          let l = keys.has("ArrowLeft") || keys.has("a");
-          let r = keys.has("ArrowRight") || keys.has("d");
-          let u = keys.has("ArrowUp") || keys.has("w");
-          let d = keys.has("ArrowDown") || keys.has("s");
-          ({ U: u, D: d, L: l, R: r } = applySOCD(u, d, l, r));
-          let dir = 5;
-          if (u && l) dir = 7;
-          else if (u && r) dir = 9;
-          else if (d && l) dir = 1;
-          else if (d && r) dir = 3;
-          else if (l) dir = 4;
-          else if (r) dir = 6;
-          else if (u) dir = 8;
-          else if (d) dir = 2;
-          else dir = 5;
-          return dir;
-        }
+    // (2) DP 啟發式（處理 622 / 266）
+    const dpH = dpHeuristic();
+    if (dpH.ok){
+      const anchor = anchorAfterFinish(dpH.lastT);
+      if (pressTime - anchor <= pressMs){
+        return {ok:true, action, name, via:'dp_heuristic', pattern: dpH.pattern};
+      }
+    }
 
-        function pushDir(dir) {
-          const now = performance.now();
-          if (!buffer.length || buffer[buffer.length - 1].dir !== dir) {
-            buffer.push({ dir, t: now });
-            const cutoff = now - 2500; // 2.5s 內
-            buffer = buffer.filter((x) => x.t >= cutoff);
-            renderStick(dir);
-            renderLog();
-          }
-        }
+    return {ok:false, action, name};
+  }
 
-        function renderStick(dir) {
-          $$(".cell").forEach((c) => {
-            c.classList.toggle("active", Number(c.dataset.dir) === dir);
-          });
-        }
+  function addResult(hit){
+    if (hit.ok) ok++; else ng++;
+    okEl.textContent = ok; ngEl.textContent = ng;
+    rateEl.textContent = (ok+ng? Math.round(ok/(ok+ng)*100):0) + '%';
 
-        function renderLog() {
-          const rows = buffer.map(
-            (b) =>
-              `${Math.round(b.t % 100000)
-                .toString()
-                .padStart(5, "0")}  dir=<em>${b.dir}</em>`
-          );
-          logEl.innerHTML = rows.join("\n");
-          logEl.scrollTop = logEl.scrollHeight;
-        }
+    const stamp = Math.round(performance.now()%100000).toString().padStart(5,'0');
+    const mv = hit.name || 'Move';
 
-        function checkSequence(pressTime) {
-          const stepMs = Number(stepMsEl.value);
-          const totalMs = Number(totalMsEl.value);
-          const pressMs = Number(punchMsEl.value);
+    // 寫入「判定紀錄」LOG（只記結果）
+    if (judgeEl){
+      const viaTxt = hit.via==='exact' ? '精確' : (hit.via==='dp_heuristic' ? '啟發式' : '');
+      const seqTxt = Array.isArray(hit.seq) ? hit.seq.join(' → ')
+                    : (hit.pattern==='622' ? '6 → 2 → 2'
+                      : (hit.pattern==='266' ? '2 → 6 → 6' : ''));
+      const line = ' '+stamp+'  '
+        + (hit.ok? '✅ <span class="hit">'+mv+' OK</span>' : '❌ <span class="miss">Miss</span>')
+        + (seqTxt? ' <span class="sub">['+seqTxt+']</span>':'')
+        + (viaTxt? ' <span class="sub">'+viaTxt+'</span>':'');
+      judgeEl.innerHTML += (judgeEl.innerHTML? '\n':'') + line;
+      judgeEl.scrollTop = judgeEl.scrollHeight;
+    }
 
-          const { seqs, action, name } = getActiveSeqs();
-          const winStart = pressTime - totalMs;
-          const win = buffer.filter((x) => x.t >= winStart && x.t <= pressTime);
+    // 常駐顯示上一筆（直到下一次覆蓋）
+    if (lastBox){
+      const viaTxt = hit.via==='exact' ? '精確' : (hit.via==='dp_heuristic' ? '啟發式' : '');
+      const seqTxt = Array.isArray(hit.seq) ? hit.seq.join(' → ')
+                    : (hit.pattern==='622' ? '6 → 2 → 2'
+                      : (hit.pattern==='266' ? '2 → 6 → 6' : ''));
+      const statusHtml = hit.ok ? '✅ <span class="hit">成功</span>' : '❌ <span class="miss">失誤</span>';
+      lastBox.innerHTML = '<div><span class="sub">'+stamp+'</span></div>'
+        + '<div>'+mv+' '+statusHtml
+        + (seqTxt? ' <span class="sub">['+seqTxt+']</span>':'')
+        + (viaTxt? ' <span class="sub">'+viaTxt+'</span>':'')
+        + '</div>';
+    }
+  }
 
-          // 嚴格相等匹配（包含你明寫 5 的變體）
-          function matchOneExact(seq) {
-            let i = 0,
-              lastT = null;
-            for (const item of win) {
-              if (item.dir === seq[i]) {
-                if (lastT !== null && item.t - lastT > stepMs)
-                  return { ok: false, reason: "step_timeout" };
-                lastT = item.t;
-                i++;
-                if (i === seq.length) break;
-              }
-            }
-            if (i !== seq.length)
-              return { ok: false, reason: "seq_incomplete" };
-            if (pressTime - lastT > pressMs)
-              return { ok: false, reason: "press_too_late" };
-            return { ok: true };
-          }
+  function onAction(){
+    const t = performance.now();
+    addResult(checkSequence(t));
+  }
 
-          // === DP 專用啟發式（支援 6-2-2 / 2-6-6 的「斜向交替」實戰軌跡）===
-          function dpHeuristic() {
-            if (moveSel.value !== "dp") return { ok: false };
-            const dirs = win.map((x) => x.dir);
-            const times = win.map((x) => x.t);
-            const isR = (d) => d === 6 || d === 3 || d === 9; // 右成份
-            const isD = (d) => d === 2 || d === 1 || d === 3; // 下成份
-            const isNonR = (d) => !isR(d);
-            const isNonD = (d) => !isD(d);
+  // 鍵盤事件（J/K/L = 行為鍵）
+  window.addEventListener('keydown', (e)=>{
+    if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','d','w','s'].includes(e.key)){
+      const before = currentDir();
+      keys.add(e.key);
+      const dir = currentDir();
+      if (dir!==before) pushDir(dir);
+    }
+    if (['j','k','l','J','K','L'].includes(e.key)) onAction();
+  });
+  window.addEventListener('keyup', (e)=>{
+    if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','d','w','s'].includes(e.key)){
+      const before = currentDir();
+      keys.delete(e.key);
+      const dir = currentDir();
+      if (dir!==before) pushDir(dir);
+    }
+  });
 
-            // 方案 A：6-2-2 型 — 找到兩次「含下」(2/1/3)，中間必有「非下」，且在第一個下之前或同時曾經有「含右」。
-            for (let i = 0; i < dirs.length; i++) {
-              if (!isD(dirs[i])) continue;
-              for (let j = i + 1; j < dirs.length; j++) {
-                if (!isD(dirs[j])) continue;
-                let separated = false;
-                for (let k = i + 1; k < j; k++) {
-                  if (isNonD(dirs[k])) {
-                    separated = true;
-                    break;
-                  }
-                }
-                if (!separated) continue; // 必須有回到非下（例如 6 或 5）
-                let a = -1;
-                for (let m = 0; m <= i; m++) {
-                  if (isR(dirs[m])) a = m;
-                }
-                if (a === -1) continue; // 在第一個下之前/當下要有右成份
-                if (times[i] - times[a] > stepMs) continue;
-                if (times[j] - times[i] > stepMs) continue;
-                if (pressTime - times[j] > pressMs) continue;
-                return { ok: true };
-              }
-            }
+  // Reset：清空統計與兩個 log，但保留「上一筆判定」
+  resetBtn.addEventListener('click',()=>{
+    ok=0; ng=0; okEl.textContent='0'; ngEl.textContent='0'; rateEl.textContent='0%';
+    if (judgeEl) judgeEl.textContent='';
+    if (logEl) logEl.textContent='';
+    buffer=[];
+  });
 
-            // 方案 B：2-6-6 型 — 找到兩次「含右」(6/3/9)，中間必有「非右」，且在第二次右之前曾經有「含下」。
-            for (let i = 0; i < dirs.length; i++) {
-              if (!isR(dirs[i])) continue;
-              for (let j = i + 1; j < dirs.length; j++) {
-                if (!isR(dirs[j])) continue;
-                let separated = false;
-                for (let k = i + 1; k < j; k++) {
-                  if (isNonR(dirs[k])) {
-                    separated = true;
-                    break;
-                  }
-                }
-                if (!separated) continue; // 必須有回到非右（例如 2 或 5）
-                let hasDownBeforeSecond = false;
-                for (let m = 0; m <= j; m++) {
-                  if (isD(dirs[m])) {
-                    hasDownBeforeSecond = true;
-                    break;
-                  }
-                }
-                if (!hasDownBeforeSecond) continue;
-                if (times[j] - times[i] > stepMs) continue;
-                if (pressTime - times[j] > pressMs) continue;
-                return { ok: true };
-              }
-            }
-            return { ok: false };
-          }
+  // ===== Gamepad 支援 =====
+  window.addEventListener('gamepadconnected', (e)=>{ padStatus.textContent = `已連線：${e.gamepad.id}`; });
+  window.addEventListener('gamepaddisconnected', ()=>{ padStatus.textContent = '未連線'; });
 
-          // 1) 先跑嚴格序列（含 5 的明寫變體）
-          for (const seq of seqs) {
-            const r = matchOneExact(seq);
-            if (r.ok) return { ok: true, action, name };
-          }
-          // 2) 再試 DP 啟發式（處理 622 / 266 的實戰輸入）
-          const dpH = dpHeuristic();
-          if (dpH.ok) return { ok: true, action, name };
+  function readPad(){
+    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const p = pads && pads[0];
+    if (!p) return {connected:false, dir:5, action:false, name:''};
 
-          return { ok: false, action, name };
-        }
+    const b = p.buttons;
+    let up = b[12]?.pressed || false;
+    let down = b[13]?.pressed || false;
+    let left = b[14]?.pressed || false;
+    let right = b[15]?.pressed || false;
 
-        function addResult(hit) {
-          if (hit.ok) ok++;
-          else ng++;
-          okEl.textContent = ok;
-          ngEl.textContent = ng;
-          rateEl.textContent =
-            (ok + ng ? Math.round((ok / (ok + ng)) * 100) : 0) + "%";
+    // 左搖桿軸
+    const dz = parseFloat(deadzoneEl.value || 0.25);
+    const ax = p.axes?.[0] ?? 0, ay = p.axes?.[1] ?? 0;
+    let lx = Math.abs(ax) > dz ? ax : 0;
+    let ly = Math.abs(ay) > dz ? ay : 0;
 
-          const stamp = Math.round(performance.now() % 100000)
-            .toString()
-            .padStart(5, "0");
-          const mv = hit.name || "Move";
+    let L = left || lx < -dz;
+    let R = right || lx > dz;
+    let U = up   || ly < -dz;
+    let D = down || ly > dz;
 
-          // 仍然把摘要寫進 Log（不影響原本方向流水）
-          const line =
-            " " +
-            stamp +
-            "  " +
-            (hit.ok
-              ? '✅ <span class="hit">' + mv + " OK</span>"
-              : '❌ <span class="miss">Miss</span>');
-          logEl.innerHTML += (logEl.innerHTML ? "\n" : "") + line;
-          logEl.scrollTop = logEl.scrollHeight;
+    ({U,D,L,R} = applySOCD(U,D,L,R));
 
-          // === 新增：常駐顯示上一筆判定 ===
-          if (lastBox) {
-            // 把匹配來源/序列轉成可讀字串（checkSequence 會回傳 via/seq/pattern）
-            const seqTxt = Array.isArray(hit.seq)
-              ? hit.seq.join(" → ")
-              : hit.pattern === "622"
-              ? "6 → 2 → 2"
-              : hit.pattern === "266"
-              ? "2 → 6 → 6"
-              : "";
+    let dir = 5;
+    if (U && L) dir = 7; else if (U && R) dir = 9; else if (D && L) dir = 1; else if (D && R) dir = 3;
+    else if (L) dir = 4; else if (R) dir = 6; else if (U) dir = 8; else if (D) dir = 2; else dir = 5;
 
-            const viaTxt =
-              hit.via === "exact"
-                ? "精確"
-                : hit.via === "dp_heuristic"
-                ? "啟發式"
-                : "";
+    // 行為鍵：A/B/X/Y 任一的新按下
+    const faceIdx = [0,1,2,3];
+    let action = false;
+    const nowPressed = new Set();
+    faceIdx.forEach(i=>{ if (b[i]?.pressed){ nowPressed.add(i); if (!prevPadButtons.has(i)) action = true; }});
+    prevPadButtons = nowPressed;
 
-            const statusHtml = hit.ok
-              ? '✅ <span class="hit">成功</span>'
-              : '❌ <span class="miss">失誤</span>';
+    return {connected:true, dir, action, name:p.id};
+  }
 
-            lastBox.innerHTML =
-              '<div><span class="sub">' +
-              stamp +
-              "</span></div>" +
-              "<div>" +
-              mv +
-              " " +
-              statusHtml +
-              (seqTxt ? ' <span class="sub">[' + seqTxt + "]</span>" : "") +
-              (viaTxt ? ' <span class="sub">' + viaTxt + "</span>" : "") +
-              "</div>";
-          }
-        }
+  function padLoop(){
+    if (usePad.checked){
+      const s = readPad();
+      padStatus.textContent = s.connected ? `已連線：${navigator.getGamepads()[0]?.id || 'Gamepad'}` : '未連線';
+      if (s.connected){
+        if (s.dir !== lastPadDir){ lastPadDir = s.dir; pushDir(s.dir); }
+        if (s.action){ onAction(); }
+      }
+    }
+    requestAnimationFrame(padLoop);
+  }
+  padLoop();
 
-        function onAction() {
-          const t = performance.now();
-          addResult(checkSequence(t));
-        }
-
-        // 鍵盤事件（J/K/L = 行為鍵）
-        window.addEventListener("keydown", (e) => {
-          if (
-            [
-              "ArrowLeft",
-              "ArrowRight",
-              "ArrowUp",
-              "ArrowDown",
-              "a",
-              "d",
-              "w",
-              "s",
-            ].includes(e.key)
-          ) {
-            const before = currentDir();
-            keys.add(e.key);
-            const dir = currentDir();
-            if (dir !== before) pushDir(dir);
-          }
-          if (["j", "k", "l", "J", "K", "L"].includes(e.key)) onAction();
-        });
-        window.addEventListener("keyup", (e) => {
-          if (
-            [
-              "ArrowLeft",
-              "ArrowRight",
-              "ArrowUp",
-              "ArrowDown",
-              "a",
-              "d",
-              "w",
-              "s",
-            ].includes(e.key)
-          ) {
-            const before = currentDir();
-            keys.delete(e.key);
-            const dir = currentDir();
-            if (dir !== before) pushDir(dir);
-          }
-        });
-
-        resetBtn.addEventListener("click", () => {
-          ok = 0;
-          ng = 0;
-          okEl.textContent = "0";
-          ngEl.textContent = "0";
-          rateEl.textContent = "0%";
-          logEl.textContent = "";
-          buffer = [];
-        });
-
-        // ===== Gamepad 支援 =====
-        window.addEventListener("gamepadconnected", (e) => {
-          padStatus.textContent = `已連線：${e.gamepad.id}`;
-        });
-        window.addEventListener("gamepaddisconnected", () => {
-          padStatus.textContent = "未連線";
-        });
-
-        function readPad() {
-          const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-          const p = pads && pads[0];
-          if (!p) return { connected: false, dir: 5, action: false, name: "" };
-
-          const b = p.buttons;
-          let up = b[12]?.pressed || false;
-          let down = b[13]?.pressed || false;
-          let left = b[14]?.pressed || false;
-          let right = b[15]?.pressed || false;
-
-          // 左搖桿軸
-          const dz = parseFloat(deadzoneEl.value || 0.25);
-          const ax = p.axes?.[0] ?? 0,
-            ay = p.axes?.[1] ?? 0;
-          let lx = Math.abs(ax) > dz ? ax : 0;
-          let ly = Math.abs(ay) > dz ? ay : 0;
-
-          let L = left || lx < -dz;
-          let R = right || lx > dz;
-          let U = up || ly < -dz;
-          let D = down || ly > dz;
-
-          ({ U, D, L, R } = applySOCD(U, D, L, R));
-
-          let dir = 5;
-          if (U && L) dir = 7;
-          else if (U && R) dir = 9;
-          else if (D && L) dir = 1;
-          else if (D && R) dir = 3;
-          else if (L) dir = 4;
-          else if (R) dir = 6;
-          else if (U) dir = 8;
-          else if (D) dir = 2;
-          else dir = 5;
-
-          // 行為鍵：A/B/X/Y 任一的新按下
-          const faceIdx = [0, 1, 2, 3];
-          let action = false;
-          const nowPressed = new Set();
-          faceIdx.forEach((i) => {
-            if (b[i]?.pressed) {
-              nowPressed.add(i);
-              if (!prevPadButtons.has(i)) action = true;
-            }
-          });
-          prevPadButtons = nowPressed;
-
-          return { connected: true, dir, action, name: p.id };
-        }
-
-        function padLoop() {
-          if (usePad.checked) {
-            const s = readPad();
-            padStatus.textContent = s.connected
-              ? `已連線：${navigator.getGamepads()[0]?.id || "Gamepad"}`
-              : "未連線";
-            if (s.connected) {
-              if (s.dir !== lastPadDir) {
-                lastPadDir = s.dir;
-                pushDir(s.dir);
-              }
-              if (s.action) {
-                onAction();
-              }
-            }
-          }
-          requestAnimationFrame(padLoop);
-        }
-        padLoop();
-
-        // 初始中心點，確保 5（中立）會被納入事件序列
-        pushDir(5);
-      })();
-    </script>
-  </body>
+  // 初始中心點，確保 5（中立）會被納入事件序列
+  pushDir(5);
+})();
+</script>
+</body>
 </html>
