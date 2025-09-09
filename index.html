@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>昇龍 / 波動 / 旋風腳 輸入練習器｜Hitbox SOCD 版</title>
+  <title>昇龍 / 波動 / 旋風腳 輸入練習器｜Hitbox SOCD 版（含 5 中立計算）</title>
   <style>
     :root{--bg:#0f1221;--panel:#161a2f;--ink:#e9ecff;--accent:#7aa2ff;--ok:#52e2b7;--bad:#ff6b6b;--muted:#9aa3c7}
     html,body{height:100%}
@@ -38,11 +38,12 @@
     .good{color:var(--ok)} .bad{color:var(--bad)}
     select, .slim{background:#0c0f20;color:#e5e9ff;border:1px solid #3b4aa3;border-radius:10px;padding:8px 10px}
     .col{display:flex;flex-direction:column;gap:6px}
+    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>SF 輸入練習器 <span class="sub">（Hitbox SOCD 版：昇龍 623/626、波動 236、旋風腳 214）</span></h1>
+    <h1>SF 輸入練習器 <span class="sub">（Hitbox SOCD 版：昇龍 623/替代、波動 236、旋風腳 214｜支援中立 5）</span></h1>
     <div class="grid">
       <section class="card">
         <div class="row" style="justify-content:space-between">
@@ -55,7 +56,7 @@
                 <option value="tatsu">旋風腳 214+K</option>
               </select>
             </label>
-            <label class="toggle"><input id="hitboxMode" type="checkbox" checked /> Hitbox 快捷（DP 允許 6-2-6 / 4-2-4）</label>
+            <label class="toggle"><input id="hitboxMode" type="checkbox" checked /> Hitbox 快捷（DP 允許 6-2-2 / 2-6-6 / 6-2-8 / 6-2-5-2 / 2-6-5-6 / 6-2-5-8）</label>
             <label class="toggle"><input id="socdNeutral" type="checkbox" checked /> SOCD：左右/上下回中</label>
             <span class="pill">鍵盤：方向鍵/WASD，行為鍵：<span class="kbd">J/K/L</span></span>
             <label class="toggle" style="margin-left:6px"><input id="usePad" type="checkbox"/> 使用搖桿（Gamepad）</label>
@@ -105,13 +106,13 @@
       <section class="card">
         <div class="row" style="justify-content:space-between;align-items:baseline">
           <h3 style="margin:0">輸入記錄</h3>
-          <div class="sub">僅顯示最近 2 秒內的方向變化；成功/失誤將附註在末端</div>
+          <div class="sub">顯示最近 2 秒內的方向變化；成功/失誤會附註在末端（支援 5 中立步驟）</div>
         </div>
         <div id="log" class="log" aria-live="polite"></div>
         <div class="help">
-          <p><b>Hitbox 常用按法</b>：昇龍可練 <span class="good">6 → 2 → 3 + P</span>，也可用 <span class="good">6 → 2 → 6 + P</span>（啟用「Hitbox 快捷」）；或「保持 6 → 點 2 = ↘」再按拳。</p>
+          <p><b>Hitbox 常用按法</b>：昇龍可練 <span class="good">6 → 2 → 3 + P</span>；也常見 <span class="good">6 → 2 → 2 + P</span>、<span class="good">2 → 6 → 6 + P</span>、或 <span class="good">6 → 2 → 8 + P</span>。亦支援以 <span class="good">5（中立）</span> 夾步的變體：<span class="good">6 → 2 → 5 → 2</span>、<span class="good">2 → 6 → 5 → 6</span>、<span class="good">6 → 2 → 5 → 8</span>。旋風腳基本為 <span class="good">2 → 1 → 4 + K</span>；也支援 <span class="good">2 → 5 → 4 + K</span>、<span class="good">2 → 4 → 4 + K</span>、<span class="good">2 → 2 → 4 + K</span>（鏡像自動處理）。</p>
           <p><b>SOCD</b>：預設左右/上下相抵回中；可關閉以測試不同清潔器邏輯。</p>
-          <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。序列自動鏡像（6↔4，3↔1）。</p>
+          <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。序列自動鏡像（6↔4，3↔1；5 不變）。</p>
           <p><b>判定</b>：序列需依序完成；相鄰步驟時間 ≤「步驟間隔」，總時限 ≤「總時限」，最後一步後「按鍵寬限」內按下行為鍵即判 OK。</p>
           <p class="footer">Made for muscle memory. 可離線使用。支援 Gamepad API（Chrome/Edge/Firefox/Opera）。</p>
         </div>
@@ -161,11 +162,14 @@
   let lastPadDir = 5;
   let prevPadButtons = new Set();
 
-  // 招式表（面向右）。面向左會鏡像（6↔4, 3↔1）。
+  // 招式表（面向右）。面向左會鏡像（6↔4, 3↔1, 其餘保持；5 不動）
   const MOVES = {
-    dp:   { name:'昇龍拳',  seqR:[[6,2,3]], action:'P', altR:[[6,2,6]] }, // 623P；Hitbox 快捷允許 6-2-6
+    dp:   { name:'昇龍拳',  seqR:[[6,2,3]], action:'P',
+            altR:[[6,2,2],[2,6,6],[6,2,8],[6,2,5,2],[2,6,5,6],[6,2,5,8]] },
     fb:   { name:'波動拳',  seqR:[[2,3,6]], action:'P' },                 // 236P
-    tatsu:{ name:'旋風腳',  seqR:[[2,1,4]], action:'K' }                  // 214K
+    // 旋風腳：經常在 2 與 4 之間經過 5（中立），或用雙擊邊向代替角落
+    // 基本 214K；允許 2-5-4、2-4-4、2-2-4
+    tatsu:{ name:'旋風腳',  seqR:[[2,1,4]], action:'K', altR:[[2,5,4],[2,4,4],[2,2,4]] }
   };
 
   // 鏡像方向與序列
@@ -232,10 +236,27 @@
     const winStart = pressTime - totalMs;
     const win = buffer.filter(x=>x.t>=winStart && x.t<=pressTime);
 
+    // 接受集合：
+    // 1/3/7/9（角落）常因回中或 SOCD 只留下 2/4/6/8/5；
+    // 允許以相鄰軸向或中立 5 代表角落；
+    // 同時允許斜向代表水平/垂直（例：3 可視為 6 或 2）。
+    const ACCEPT = {
+      6: new Set([6,3,9]),
+      2: new Set([2,1,3]),
+      4: new Set([4,1,7]),
+      8: new Set([8,7,9]),
+      5: new Set([5]),
+      1: new Set([1,2,4,5]),
+      3: new Set([3,2,6,5]),
+      7: new Set([7,4,8,5]),
+      9: new Set([9,6,8,5])
+    };
+    const accepts = (need, dir)=> (ACCEPT[need]||new Set([need])).has(dir);
+
     function matchOne(seq){
       let i=0, lastT=null;
       for (const item of win){
-        if (item.dir===seq[i]){
+        if (accepts(seq[i], item.dir)){
           if (lastT!==null && (item.t - lastT) > stepMs) return {ok:false, reason:'step_timeout'};
           lastT = item.t;
           i++;
@@ -346,7 +367,7 @@
   }
   padLoop();
 
-  // 初始中心點
+  // 初始中心點，確保 5（中立）會被納入事件序列
   pushDir(5);
 })();
 </script>
