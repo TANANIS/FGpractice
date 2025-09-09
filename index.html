@@ -56,7 +56,7 @@
                 <option value="tatsu">旋風腳 214+K</option>
               </select>
             </label>
-            <label class="toggle"><input id="hitboxMode" type="checkbox" checked /> Hitbox 快捷（DP 允許 6-2-2 / 2-6-6 / 6-2-8 / 6-2-5-2 / 2-6-5-6 / 6-2-5-8）</label>
+            <label class="toggle"><input id="hitboxMode" type="checkbox" checked /> Hitbox 快捷(判定無效時開啟)</label>
             <label class="toggle"><input id="socdNeutral" type="checkbox" checked /> SOCD：左右/上下回中</label>
             <span class="pill">鍵盤：方向鍵/WASD，行為鍵：<span class="kbd">J/K/L</span></span>
             <label class="toggle" style="margin-left:6px"><input id="usePad" type="checkbox"/> 使用搖桿（Gamepad）</label>
@@ -104,11 +104,11 @@
         <div id="log" class="log"></div>
 
         <div class="help">
-          <p><b>Hitbox 常用按法</b>：昇龍可練 <span class="good">6 → 2 → 3 + P</span>；也常見 <span class="good">6 → 2 → 2 + P</span>、<span class="good">2 → 6 → 6 + P</span>、或 <span class="good">6 → 2 → 8 + P</span>。亦支援以 <span class="good">5（中立）</span> 夾步的變體：<span class="good">6 → 2 → 5 → 2</span>、<span class="good">2 → 6 → 5 → 6</span>、<span class="good">6 → 2 → 5 → 8</span>。旋風腳基本為 <span class="good">2 → 1 → 4 + K</span>；也支援 <span class="good">2 → 5 → 4 + K</span>、<span class="good">2 → 4 → 4 + K</span>、<span class="good">2 → 2 → 4 + K</span>（鏡像自動處理）。</p>
-          <p><b>SOCD</b>：預設左右/上下相抵回中；可關閉以測試不同清潔器邏輯。</p>
-          <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。序列自動鏡像（6↔4，3↔1；5 不變）。</p>
+          <p><b>Hitbox 常用按法</b>：昇龍 <span class="good">6 → 2 → 3 + P</span>KB/HitBox：<span class="good">6 → 2 → 2 + P</span>、<span class="good">2 → 6 → 6 + P</span>、OR <span class="good">6 → 2 → 8 + P</span>。旋風腳： <span class="good">2 → 1 → 4 + K(暫JKL)</span>： <span class="good">2 → 4 + K</span></p>
+          <p><b>SOCD</b>：預設左右/上下相抵回中</p>
+          <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。</p>
           <p><b>判定</b>：序列需依序完成；相鄰步驟需在限制時間內、整套招式需在總時限內；最後一步後需在寬限內按下行為鍵才算 OK。</p>
-          <p class="footer">Made for muscle memory. 可離線使用。支援 Gamepad API（Chrome/Edge/Firefox/Opera）。</p>
+          <p class="footer">TANA 20250909</p>
         </div>
       </section>
     </div>
