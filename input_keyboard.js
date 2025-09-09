@@ -36,4 +36,3 @@ export function initKeyboard(onAction){
   // 初始中立
   pushDir(5); renderStick(5); renderLog();
 }
- 
