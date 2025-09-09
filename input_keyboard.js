@@ -1,4 +1,4 @@
-// input_keyboard.js
+// input_keyboard.js (Space acts as W / Up=8)
 import { applySOCD } from './socd.js';
 import { keys, pushDir } from './state.js';
 import { renderStick, renderLog } from './ui.js';
@@ -17,6 +17,18 @@ function currentDir(){
 
 export function initKeyboard(onAction){
   window.addEventListener('keydown', (e)=>{
+    // Space = W (Up). Prevent page scroll and treat as holding 'w'.
+    if (e.code === 'Space'){
+      e.preventDefault();
+      const before = currentDir();
+      if (!keys.has('w')){ // guard against auto-repeat
+        keys.add('w');
+        const dir = currentDir();
+        if (dir!==before){ pushDir(dir); renderStick(dir); renderLog(); }
+      }
+      return; // handled
+    }
+
     if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','d','w','s'].includes(e.key)){
       const before = currentDir();
       keys.add(e.key);
@@ -25,7 +37,17 @@ export function initKeyboard(onAction){
     }
     if (['j','k','l','J','K','L'].includes(e.key)){ onAction(); }
   });
+
   window.addEventListener('keyup', (e)=>{
+    // Release Space = release 'w'
+    if (e.code === 'Space'){
+      const before = currentDir();
+      if (keys.has('w')) keys.delete('w');
+      const dir = currentDir();
+      if (dir!==before){ pushDir(dir); renderStick(dir); renderLog(); }
+      return; // handled
+    }
+
     if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','d','w','s'].includes(e.key)){
       const before = currentDir();
       keys.delete(e.key);
@@ -33,6 +55,7 @@ export function initKeyboard(onAction){
       if (dir!==before){ pushDir(dir); renderStick(dir); renderLog(); }
     }
   });
+
   // 初始中立
   pushDir(5); renderStick(5); renderLog();
 }
