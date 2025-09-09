@@ -77,25 +77,6 @@
           <div class="cell" data-dir="3"><span>↘</span></div>
         </div>
 
-        <div class="row" style="gap:18px;align-items:flex-start">
-          <div class="col" style="flex:1">
-            <label>步驟間隔（ms）<div class="bar"><i id="stepBar"></i></div></label>
-            <input type="range" id="stepMs" min="60" max="300" value="160" style="width:100%">
-          </div>
-          <div class="col" style="flex:1">
-            <label>總時限（ms）<div class="bar"><i id="totalBar"></i></div></label>
-            <input type="range" id="totalMs" min="200" max="900" value="430" style="width:100%">
-          </div>
-          <div class="col" style="flex:1">
-            <label>按鍵寬限（ms）<div class="bar"><i id="punchBar"></i></div></label>
-            <input type="range" id="punchMs" min="60" max="260" value="120" style="width:100%">
-          </div>
-          <div class="col" style="flex:1">
-            <label>搖桿 Deadzone<div class="bar"><i id="deadBar"></i></div></label>
-            <input type="range" id="deadzone" min="0" max="0.6" step="0.02" value="0.25" style="width:100%">
-          </div>
-        </div>
-
         <div class="stat">
           <div>成功<b id="ok">0</b></div>
           <div>失誤<b id="ng">0</b></div>
@@ -126,7 +107,7 @@
           <p><b>Hitbox 常用按法</b>：昇龍可練 <span class="good">6 → 2 → 3 + P</span>；也常見 <span class="good">6 → 2 → 2 + P</span>、<span class="good">2 → 6 → 6 + P</span>、或 <span class="good">6 → 2 → 8 + P</span>。亦支援以 <span class="good">5（中立）</span> 夾步的變體：<span class="good">6 → 2 → 5 → 2</span>、<span class="good">2 → 6 → 5 → 6</span>、<span class="good">6 → 2 → 5 → 8</span>。旋風腳基本為 <span class="good">2 → 1 → 4 + K</span>；也支援 <span class="good">2 → 5 → 4 + K</span>、<span class="good">2 → 4 → 4 + K</span>、<span class="good">2 → 2 → 4 + K</span>（鏡像自動處理）。</p>
           <p><b>SOCD</b>：預設左右/上下相抵回中；可關閉以測試不同清潔器邏輯。</p>
           <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。序列自動鏡像（6↔4，3↔1；5 不變）。</p>
-          <p><b>判定</b>：序列需依序完成；相鄰步驟時間 ≤「步驟間隔」，總時限 ≤「總時限」。<b>昇龍完成後允許在步驟間隔內補 6（或 4）或 5 再按拳</b>，按鍵需在錨點後「按鍵寬限」內。</p>
+          <p><b>判定</b>：序列需依序完成；相鄰步驟需在限制時間內、整套招式需在總時限內；最後一步後需在寬限內按下行為鍵才算 OK。</p>
           <p class="footer">Made for muscle memory. 可離線使用。支援 Gamepad API（Chrome/Edge/Firefox/Opera）。</p>
         </div>
       </section>
@@ -146,27 +127,11 @@
   const okEl = $('#ok');
   const ngEl = $('#ng');
   const rateEl = $('#rate');
-  const stepMsEl = $('#stepMs');
-  const totalMsEl = $('#totalMs');
-  const punchMsEl = $('#punchMs');
-  const stepBar = $('#stepBar');
-  const totalBar = $('#totalBar');
-  const punchBar = $('#punchBar');
   const usePad = $('#usePad');
   const padStatus = $('#padStatus');
-  const deadzoneEl = $('#deadzone');
-  const deadBar = $('#deadBar');
   const hitboxMode = $('#hitboxMode');
   const socdNeutral = $('#socdNeutral');
-
-  function syncBars(){
-    stepBar.style.width = ( (stepMsEl.value-stepMsEl.min)/(stepMsEl.max-stepMsEl.min) * 100 ) + '%';
-    totalBar.style.width = ( (totalMsEl.value-totalMsEl.min)/(totalMsEl.max-totalMsEl.min) * 100 ) + '%';
-    punchBar.style.width = ( (punchMsEl.value-punchMsEl.min)/(punchMsEl.max-punchMsEl.min) * 100 ) + '%';
-    deadBar.style.width = ( (deadzoneEl.value-deadzoneEl.min)/(deadzoneEl.max-deadzoneEl.min) * 100 ) + '%';
-  }
-  [stepMsEl,totalMsEl,punchMsEl,deadzoneEl].forEach(el=>el.addEventListener('input',syncBars));
-  syncBars();
+  const DEFAULTS = { stepMs: 160, totalMs: 430, punchMs: 120, deadzone: 0.25 };
 
   // 狀態
   let buffer = []; // {dir:number, t:number}
@@ -240,9 +205,9 @@
 
   // ===== 判定邏輯 =====
   function checkSequence(pressTime){
-    const stepMs = Number(stepMsEl.value);
-    const totalMs = Number(totalMsEl.value);
-    const pressMs = Number(punchMsEl.value);
+ const stepMs  = DEFAULTS.stepMs;
+ const totalMs = DEFAULTS.totalMs;
+ const pressMs = DEFAULTS.punchMs;
 
     const {seqs, action, name} = getActiveSeqs();
     const winStart = pressTime - totalMs;
@@ -422,7 +387,7 @@
     let right = b[15]?.pressed || false;
 
     // 左搖桿軸
-    const dz = parseFloat(deadzoneEl.value || 0.25);
+    const dz = DEFAULTS.deadzone;
     const ax = p.axes?.[0] ?? 0, ay = p.axes?.[1] ?? 0;
     let lx = Math.abs(ax) > dz ? ax : 0;
     let ly = Math.abs(ay) > dz ? ay : 0;
