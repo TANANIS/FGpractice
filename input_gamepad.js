@@ -1,16 +1,16 @@
 // input_gamepad.js
-import { DEFAULTS, DOM } from './config.js';
-import { applySOCD } from './socd.js';
-import { pushDir } from './state.js';
-import { renderStick, renderLog, setPadStatus } from './ui.js';
+import { DEFAULTS, DOM } from "./config.js";
+import { applySOCD } from "./socd.js";
+import { pushDir } from "./state.js";
+import { renderStick, renderLog, setPadStatus } from "./ui.js";
 
 let lastPadDir = 5;
 let prevPadButtons = new Set();
 
-function readPad(){
+function readPad() {
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
   const p = pads && pads[0];
-  if (!p) return {connected:false, dir:5, action:false};
+  if (!p) return { connected: false, dir: 5, action: false };
 
   const b = p.buttons;
   let up = b[12]?.pressed || false;
@@ -19,41 +19,80 @@ function readPad(){
   let right = b[15]?.pressed || false;
 
   const dz = DEFAULTS.deadzone;
-  const ax = p.axes?.[0] ?? 0, ay = p.axes?.[1] ?? 0;
+  const ax = p.axes?.[0] ?? 0,
+    ay = p.axes?.[1] ?? 0;
   let lx = Math.abs(ax) > dz ? ax : 0;
   let ly = Math.abs(ay) > dz ? ay : 0;
 
   let L = left || lx < -dz;
   let R = right || lx > dz;
-  let U = up   || ly < -dz;
+  let U = up || ly < -dz;
   let D = down || ly > dz;
 
-  ({U,D,L,R} = applySOCD(U,D,L,R));
+  ({ U, D, L, R } = applySOCD(U, D, L, R));
 
   let dir = 5;
-  if (U && L) dir = 7; else if (U && R) dir = 9; else if (D && L) dir = 1; else if (D && R) dir = 3;
-  else if (L) dir = 4; else if (R) dir = 6; else if (U) dir = 8; else if (D) dir = 2; else dir = 5;
+  if (U && L) dir = 7;
+  else if (U && R) dir = 9;
+  else if (D && L) dir = 1;
+  else if (D && R) dir = 3;
+  else if (L) dir = 4;
+  else if (R) dir = 6;
+  else if (U) dir = 8;
+  else if (D) dir = 2;
+  else dir = 5;
 
-  const faceIdx = [0,1,2,3];
-  let action = false;
+  const faceIdx = [0, 1, 2, 3];
+  // Punch: 2(Square/X), 3(Triangle/Y), 5(RB)
+  // Kick : 0(Cross/A), 1(Circle/B), 7(RT)
+  const punchBtns = [2, 3, 5];
+  const kickBtns = [0, 1, 7];
+
+  let actionPunch = false,
+    actionKick = false;
   const nowPressed = new Set();
-  faceIdx.forEach(i=>{ if (b[i]?.pressed){ nowPressed.add(i); if (!prevPadButtons.has(i)) action = true; }});
+  for (let i = 0; i < b.length; i++) {
+    if (b[i]?.pressed) nowPressed.add(i);
+  }
+  // 新壓下才觸發（去抖）
+  punchBtns.forEach((i) => {
+    if (nowPressed.has(i) && !prevPadButtons.has(i)) actionPunch = true;
+  });
+  kickBtns.forEach((i) => {
+    if (nowPressed.has(i) && !prevPadButtons.has(i)) actionKick = true;
+  });
   prevPadButtons = nowPressed;
 
-  return {connected:true, dir, action};
+  return { connected: true, dir, actionPunch, actionKick };
 }
 
-export function initGamepad(onAction){
-  window.addEventListener('gamepadconnected', (e)=> setPadStatus(`已連線：${e.gamepad.id}`));
-  window.addEventListener('gamepaddisconnected', ()=> setPadStatus('未連線'));
+export function initGamepad(onPunch, onKick) {
+  window.addEventListener("gamepadconnected", (e) =>
+    setPadStatus(`已連線：${e.gamepad.id}`)
+  );
+  window.addEventListener("gamepaddisconnected", () => setPadStatus("未連線"));
 
-  function loop(){
-    if (DOM.usePad.checked){
+  function loop() {
+    if (DOM.usePad.checked) {
       const s = readPad();
-      setPadStatus(s.connected ? `已連線：${navigator.getGamepads()?.[0]?.id || 'Gamepad'}` : '未連線');
-      if (s.connected){
-        if (s.dir !== lastPadDir){ lastPadDir = s.dir; pushDir(s.dir); renderStick(s.dir); renderLog(); }
-        if (s.action){ onAction(); }
+      setPadStatus(
+        s.connected
+          ? `已連線：${navigator.getGamepads()?.[0]?.id || "Gamepad"}`
+          : "未連線"
+      );
+      if (s.connected) {
+        if (s.dir !== lastPadDir) {
+          lastPadDir = s.dir;
+          pushDir(s.dir);
+          renderStick(s.dir);
+          renderLog();
+        }
+        if (s.actionPunch) {
+          onPunch();
+        }
+        if (s.actionKick) {
+          onKick();
+        }
       }
     }
     requestAnimationFrame(loop);

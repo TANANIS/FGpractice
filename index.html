@@ -1,85 +1,139 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SF 練習器</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="wrap">
-    <h1>SF 練習器<span class="sub">（絕招/反應練習）</span></h1>
-    <div class="grid">
-      <section class="card">
-        <div class="row" style="justify-content:space-between">
-          <div class="row">
-            <label class="toggle"><input id="face" type="checkbox"/> 面向左（←）</label>
-            <label class="toggle">招式
-              <select id="move" class="slim">
-                <option value="dp">昇龍拳 623+P</option>
-                <option value="fb">波動拳 236+P</option>
-                <option value="tatsu">旋風腳 214+K</option>
-              </select>
-            </label>
-            <label class="toggle"><input id="hitboxMode" type="checkbox" checked /> Hitbox 快捷(判定無效時開啟)</label>
-            <label class="toggle"><input id="socdNeutral" type="checkbox" checked /> SOCD：左右/上下回中</label>
-            <span class="pill">鍵盤：方向鍵/WASD，行為鍵：<span class="kbd">J/K/L</span></span>
-            <label class="toggle" style="margin-left:6px"><input id="usePad" type="checkbox"/> 使用搖桿（Gamepad）</label>
-            <span class="pill" id="padStatus">未連線</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SF 練習器</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>SF 練習器<span class="sub">（絕招/反應練習）</span></h1>
+      <div class="grid">
+        <section class="card">
+          <div class="row" style="justify-content: space-between">
+            <div class="row">
+              <label class="toggle"
+                ><input id="face" type="checkbox" /> 面向左（←）</label
+              >
+              <label class="toggle"
+                >招式
+                <select id="move" class="slim">
+                  <option value="dp">昇龍拳 623+P</option>
+                  <option value="fb">波動拳 236+P</option>
+                  <option value="tatsu">旋風腳 214+K</option>
+                </select>
+              </label>
+              <label class="toggle"
+                ><input id="hitboxMode" type="checkbox" checked /> Hitbox
+                快捷(判定無效時開啟)</label
+              >
+              <label class="toggle"
+                ><input id="socdNeutral" type="checkbox" checked />
+                SOCD：左右/上下回中</label
+              >
+              <span class="pill"
+                >鍵盤：方向鍵/WASD，<b>P</b>=<span class="kbd">J/K/L</span
+                >，<b>K</b>=<span class="kbd">M / , / .</span></span
+              >
+              <label class="toggle" style="margin-left: 6px"
+                ><input id="usePad" type="checkbox" />
+                使用搖桿（Gamepad）</label
+              >
+              <span class="pill" id="padStatus">未連線</span>
+            </div>
+            <button class="btn" id="reset">重置統計</button>
           </div>
-          <button class="btn" id="reset">重置統計</button>
-        </div>
 
-        <div class="stick" id="stick">
-          <div class="cell" data-dir="7"><span>↖</span></div>
-          <div class="cell" data-dir="8"><span>↑</span></div>
-          <div class="cell" data-dir="9"><span>↗</span></div>
-          <div class="cell" data-dir="4"><span>←</span></div>
-          <div class="cell" data-dir="5"><span>•</span></div>
-          <div class="cell" data-dir="6"><span>→</span></div>
-          <div class="cell" data-dir="1"><span>↙</span></div>
-          <div class="cell" data-dir="2"><span>↓</span></div>
-          <div class="cell" data-dir="3"><span>↘</span></div>
-        </div>
+          <div class="stick" id="stick">
+            <div class="cell" data-dir="7"><span>↖</span></div>
+            <div class="cell" data-dir="8"><span>↑</span></div>
+            <div class="cell" data-dir="9"><span>↗</span></div>
+            <div class="cell" data-dir="4"><span>←</span></div>
+            <div class="cell" data-dir="5"><span>•</span></div>
+            <div class="cell" data-dir="6"><span>→</span></div>
+            <div class="cell" data-dir="1"><span>↙</span></div>
+            <div class="cell" data-dir="2"><span>↓</span></div>
+            <div class="cell" data-dir="3"><span>↘</span></div>
+          </div>
 
-        <div class="stat">
-          <div>成功<b id="ok">0</b></div>
-          <div>失誤<b id="ng">0</b></div>
-          <div>成功率<b id="rate">0%</b></div>
-        </div>
-      </section>
+          <div class="stat">
+            <div>成功<b id="ok">0</b></div>
+            <div>失誤<b id="ng">0</b></div>
+            <div>成功率<b id="rate">0%</b></div>
+          </div>
+        </section>
 
-      <section class="card">
-        <div class="row" style="justify-content:space-between;align-items:baseline">
-          <h3 style="margin:0">上一筆判定</h3>
-          <div class="sub">直到下一次輸入才會更新</div>
-        </div>
-        <div id="lastBox" class="log" style="height:auto;min-height:56px;display:flex;align-items:center;justify-content:space-between;"></div>
+        <section class="card">
+          <div
+            class="row"
+            style="justify-content: space-between; align-items: baseline"
+          >
+            <h3 style="margin: 0">上一筆判定</h3>
+            <div class="sub">直到下一次輸入才會更新</div>
+          </div>
+          <div
+            id="lastBox"
+            class="log"
+            style="
+              height: auto;
+              min-height: 56px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          ></div>
 
-        <div class="row" style="justify-content:space-between;align-items:baseline;margin-top:10px">
-          <h3 style="margin:0">判定紀錄</h3>
-          <div class="sub">每次按下行為鍵（J/K/L 或手把）都會留下結果</div>
-        </div>
-        <div id="judge" class="log" aria-live="polite"></div>
+          <div
+            class="row"
+            style="
+              justify-content: space-between;
+              align-items: baseline;
+              margin-top: 10px;
+            "
+          >
+            <h3 style="margin: 0">判定紀錄</h3>
+            <div class="sub">每次按下行為鍵（J/K/L 或手把）都會留下結果</div>
+          </div>
+          <div id="judge" class="log" aria-live="polite"></div>
 
-        <div class="row" style="justify-content:space-between;align-items:baseline;margin-top:10px">
-          <h3 style="margin:0">輸入記錄</h3>
-          <div class="sub">顯示最近 2.5 秒內的方向變化（僅方向）</div>
-        </div>
-        <div id="log" class="log"></div>
+          <div
+            class="row"
+            style="
+              justify-content: space-between;
+              align-items: baseline;
+              margin-top: 10px;
+            "
+          >
+            <h3 style="margin: 0">輸入記錄</h3>
+            <div class="sub">顯示最近 2.5 秒內的方向變化（僅方向）</div>
+          </div>
+          <div id="log" class="log"></div>
 
-        <div class="help">
-          <p><b>Hitbox 常用按法</b>：昇龍 <span class="good">6 → 2 → 3 + P</span>KB/HitBox：<span class="good">6 → 2 → 2 + P</span>、<span class="good">2 → 6 → 6 + P</span>、OR <span class="good">6 → 2 → 8 + P</span>。旋風腳： <span class="good">2 → 1 → 4 + K(暫JKL)</span>： <span class="good">2 → 4 + K</span></p>
-          <p><b>SOCD</b>：預設左右/上下相抵回中</p>
-          <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。</p>
-          <p><b>判定</b>：序列需依序完成；相鄰步驟需在限制時間內、整套招式需在總時限內；最後一步後需在寬限內按下行為鍵才算 OK。</p>
-          <p class="footer">TANA 20250909</p>
-        </div>
-      </section>
+          <div class="help">
+            <p>
+              <b>Hitbox 常用按法</b>：昇龍
+              <span class="good">6 → 2 → 3 + P</span>KB/HitBox：<span
+                class="good"
+                >6 → 2 → 2 + P</span
+              >、<span class="good">2 → 6 → 6 + P</span>、OR
+              <span class="good">6 → 2 → 8 + P</span>。旋風腳：
+              <span class="good">2 → 1 → 4 + K(暫JKL)</span>：
+              <span class="good">2 → 4 + K</span>
+            </p>
+            <p><b>SOCD</b>：預設左右/上下相抵回中</p>
+            <p><b>面向</b>：未勾選＝面向右；勾選＝面向左。</p>
+            <p>
+              <b>判定</b
+              >：序列需依序完成；相鄰步驟需在限制時間內、整套招式需在總時限內；最後一步後需在寬限內按下行為鍵才算
+              OK。
+            </p>
+            <p class="footer">TANA 20250909</p>
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
 
-<script type="module" src="main.js"></script>
-
-</body>
+    <script type="module" src="main.js"></script>
+  </body>
 </html>

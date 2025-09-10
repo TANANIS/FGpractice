@@ -3,12 +3,16 @@ import { DEFAULTS } from "./config.js";
 import { buffer } from "./state.js";
 import { getActiveSeqs, forwardDir } from "./moves.js";
 
-export function checkSequence(pressTime) {
+export function checkSequence(pressTime, pressKind){ // pressKind: 'P' | 'K'
   const stepMs = DEFAULTS.stepMs;
   const totalMs = DEFAULTS.totalMs;
   const pressMs = DEFAULTS.punchMs;
 
-  const { seqs, action, name } = getActiveSeqs();
+   const {seqs, action, name} = getActiveSeqs();
+  // 若按的不是該招式要求的 P/K，直接 Miss（仍回傳 name 供 UI 顯示）
+  if (pressKind && action && pressKind !== action){
+    return {ok:false, action, name, reason:'wrong_action'};
+  }
   const winStart = pressTime - totalMs;
   const win = buffer.filter((x) => x.t >= winStart && x.t <= pressTime);
 

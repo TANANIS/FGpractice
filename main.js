@@ -6,9 +6,9 @@ import { initGamepad } from './input_gamepad.js';
 import { checkSequence } from './judge.js';
 import { renderStats, appendJudgeLine, showLastBox, resetPanels } from './ui.js';
 
-function onAction(){
+function onAction(kind){ // kind: 'P' | 'K'
   const t = performance.now();
-  const hit = checkSequence(t);
+  const hit = checkSequence(t, kind);
 
   // 更新統計
   if (hit.ok) { window.__ok = (window.__ok||0)+1; } else { window.__ng = (window.__ng||0)+1; }
@@ -23,8 +23,14 @@ function onAction(){
   DOM.rateEl.textContent = (totalOk+totalNg ? Math.round(totalOk/(totalOk+totalNg)*100):0) + '%';
 }
 
-initKeyboard(onAction);
-initGamepad(onAction);
+initKeyboard(
+  ()=>onAction('P'),
+  ()=>onAction('K')
+);
+initGamepad(
+  ()=>onAction('P'),
+  ()=>onAction('K')
+);
 
 DOM.resetBtn.addEventListener('click', ()=>{
   window.__ok = 0; window.__ng = 0;
