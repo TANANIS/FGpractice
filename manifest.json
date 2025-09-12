@@ -1,0 +1,65 @@
+{
+  "generated_at": "2025-09-12 04:50:47",
+  "files": [
+    {
+      "name": "index.html",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "styles.css",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "config.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "moves.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "state.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "judge.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "input_gamepad.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "input_keyboard.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "socd.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "ui.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "main.js",
+      "exists": false,
+      "size_bytes": null
+    },
+    {
+      "name": "README.md",
+      "exists": false,
+      "size_bytes": null
+    }
+  ]
+}
